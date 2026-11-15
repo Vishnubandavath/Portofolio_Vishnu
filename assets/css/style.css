@@ -53,6 +53,11 @@ body {
   overflow-x: hidden;
 }
 
+body.intro-active {
+  overflow: hidden !important;
+  height: 100vh !important;
+}
+
 /* Three.js Background Canvas */
 #three-bg {
   position: fixed;
@@ -107,7 +112,7 @@ section {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  z-index: 1000;
+  z-index: 10000;
   position: fixed;
   top: 2.5rem;
   left: 50%;
@@ -832,7 +837,21 @@ section {
 @media screen and (max-width: 768px) {
   /* Mobile view navigation overrides */
   .header {
-    display: none !important;
+    display: flex !important;
+    padding: 1rem 2rem !important;
+    width: 95% !important;
+    max-width: 95% !important;
+    top: 1rem !important;
+  }
+
+  .portfolio-logo {
+    font-size: 1.6rem !important;
+  }
+
+  .navbar-container a {
+    margin-left: 1rem !important;
+    font-size: 1.1rem !important;
+    padding: 0.3rem 0.6rem !important;
   }
 
   .mobile-nav-dock {
@@ -893,6 +912,27 @@ section {
 
 @media screen and (max-width: 480px) {
   html { font-size: 52%; }
+
+  .header {
+    padding: 0.8rem 1rem !important;
+    width: 98% !important;
+    max-width: 98% !important;
+  }
+
+  .portfolio-logo {
+    display: none !important;
+  }
+
+  .navbar-container {
+    width: 100% !important;
+    justify-content: space-around !important;
+  }
+
+  .navbar-container a {
+    margin-left: 0 !important;
+    font-size: 1.05rem !important;
+    padding: 0.2rem 0.5rem !important;
+  }
   
   .home-img-wrapper {
     width: 30rem;
@@ -954,7 +994,7 @@ section {
   padding: 0.8rem 2.2rem;
   gap: 2.8rem;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), var(--neon-glow);
-  z-index: 1000;
+  z-index: 10000;
   width: max-content;
   animation: slideUpDock 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
@@ -1020,7 +1060,7 @@ section {
   -webkit-backdrop-filter: blur(8px);
   opacity: 0;
   pointer-events: none;
-  z-index: 9998;
+  z-index: 20000;
   transition: opacity 0.4s ease;
 }
 
@@ -1042,7 +1082,7 @@ section {
   border-radius: 3.2rem 3.2rem 0 0;
   padding: 4rem 3rem 6rem;
   transform: translateY(100%);
-  z-index: 9999;
+  z-index: 20001;
   transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
   box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.6), var(--neon-glow);
 }

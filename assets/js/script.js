@@ -292,8 +292,44 @@ if (form) {
     e.preventDefault();
 
     const formData = new FormData(form);
+    
+    // 1. Form Validation
+    const name = formData.get('name') ? formData.get('name').trim() : '';
+    const email = formData.get('email') ? formData.get('email').trim() : '';
+    const number = formData.get('number') ? formData.get('number').trim() : '';
+    const city = formData.get('city') ? formData.get('city').trim() : '';
+    const message = formData.get('message') ? formData.get('message').trim() : '';
+
+    if (name.length < 2) {
+      alert("Please enter a valid name (at least 2 characters).");
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      alert("Please enter a valid email address.");
+      return;
+    }
+
+    // Checking mobile number length (typically 10 digits)
+    if (number.length < 10) {
+      alert("Please enter a valid 10-digit mobile number.");
+      return;
+    }
+
+    if (city.length < 2) {
+      alert("Please enter a valid city name.");
+      return;
+    }
+
+    if (message.length < 10) {
+      alert("Please enter a message with at least 10 characters.");
+      return;
+    }
+
     if (!formData.has("access_key")) {
-      formData.append("access_key", "46bb3fe9-0398-4403-81a9-49503f8b3a60");
+      // NOTE: Replace this access key with your Web3Forms access key registered with bandavathvishunu2020@gmail.com
+      formData.append("access_key", "950a5aaa-a76d-4914-a28e-8389f3b6f8ac");
     }
 
     const originalText = submitBtn.textContent;
