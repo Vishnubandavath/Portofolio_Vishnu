@@ -7,14 +7,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const imgWrapper = document.querySelector('.intro-img-wrapper');
   const imgColor = document.querySelector('.intro-img-color');
   const scrollPrompt = document.querySelector('.intro-scroll-prompt');
-  const header = document.querySelector('.header');
   const mobileDock = document.querySelector('.mobile-nav-dock');
 
-  // Hide header and mobile dock during cinematic intro so they are not visible on the intro page
-  if (header) {
-    header.style.opacity = '0';
-    header.style.pointerEvents = 'none';
-  }
   if (mobileDock) {
     mobileDock.style.opacity = '0';
     mobileDock.style.pointerEvents = 'none';
@@ -244,15 +238,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (isTransitioned) return;
     isTransitioned = true;
 
-    // Fade in the header and mobile dock as the intro transitions out
-    if (header) {
-      gsap.to(header, {
-        opacity: 1,
-        pointerEvents: 'auto',
-        duration: 0.8,
-        ease: 'power2.out'
-      });
-    }
+    // Fade in the mobile dock as the intro transitions out
     if (mobileDock) {
       gsap.to(mobileDock, {
         opacity: 1,

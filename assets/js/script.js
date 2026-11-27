@@ -64,6 +64,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Initialize Three.js Background
   initThreeBackground();
+
+  // Initialize Certificate Lightbox Modal
+  initCertificateModal();
 });
 
 // Custom 3D Tilt Card Logic
@@ -167,27 +170,8 @@ function initThreeBackground() {
   });
 }
 
-// Desktop Header Sticky Shrink Logic
-const header = document.querySelector("header");
-let lastScrollY = window.scrollY;
-
-window.addEventListener("scroll", () => {
-  const currentScrollY = window.scrollY;
-
-  if (header) {
-    // Shrink navbar when scrolling down, expand when scrolling up
-    if (currentScrollY > 100) {
-      header.classList.add("sticky");
-    } else {
-      header.classList.remove("sticky");
-    }
-  }
-  lastScrollY = currentScrollY;
-});
-
 // Intersection Observer for Active Section Tracking
 const trackedSections = document.querySelectorAll("section");
-const desktopNavLinks = document.querySelectorAll("header nav a");
 const dockNavLinks = document.querySelectorAll(".mobile-nav-dock a");
 const sheetNavLinks = document.querySelectorAll(".bottom-sheet-links a");
 
@@ -201,11 +185,6 @@ const observerCallback = (entries) => {
   entries.forEach(entry => {
     if (entry.isIntersecting) {
       const id = entry.target.getAttribute("id");
-
-      // Update Desktop Navbar Links
-      desktopNavLinks.forEach(link => {
-        link.classList.toggle("active", link.getAttribute("href") === `#${id}`);
-      });
 
       // Update Mobile Dock Links
       dockNavLinks.forEach(link => {
@@ -311,9 +290,10 @@ if (form) {
       return;
     }
 
-    // Checking mobile number length (typically 10 digits)
-    if (number.length < 10) {
-      alert("Please enter a valid 10-digit mobile number.");
+    // Checking mobile number length (allowing country codes and the + symbol)
+    const cleanedNumber = number.replace(/[\s\-\(\)\+]/g, '');
+    if (cleanedNumber.length < 7) {
+      alert("Please enter a valid mobile number.");
       return;
     }
 
@@ -384,3 +364,313 @@ if (filterButtons.length > 0 && skillCards.length > 0) {
     });
   });
 }
+
+// Certificate Lightbox Modal System
+// ==================================================
+// Centralized Mapping for Certificates & Internships
+// ==================================================
+const milestones = [
+  {
+    title: "Solutions Architecture Job Simulation",
+    category: "Certificate",
+    issuer: "Forage – AWS",
+    date: "July 22, 2025",
+    file: "assets/docs/Certificates/aws_page-0001.jpg"
+  },
+  {
+    title: "Information Technology Intern",
+    category: "Internship",
+    issuer: "Vanna Information Technologies India Pvt. Ltd.",
+    date: "June 12, 2025 – July 12, 2025",
+    file: "assets/docs/Internships/B22AI055_VANNA_page-0001.jpg"
+  },
+  {
+    title: "Remote Sensing of Soils: Mapping, Classification and Evaluation for Agricultural Land Use Planning",
+    category: "Certificate",
+    issuer: "Indian Institute of Remote Sensing (IIRS), ISRO",
+    date: "Course: March 3–7, 2025 | Certified: April 16, 2025",
+    file: "assets/docs/Certificates/ISRO-1.png"
+  },
+  {
+    title: "SCOA Warehouse Training Program for Aspiring Professionals",
+    category: "Certificate",
+    issuer: "Flipkart – Supply Chain Operations Academy (SCOA)",
+    date: "Exam: March 10, 2025 | Certified: April 11, 2025",
+    file: "assets/docs/Certificates/Flipcart-1.png"
+  },
+  {
+    title: "GDG on Campus Solution Challenge – Certificate of Participation",
+    category: "Certificate",
+    issuer: "Google Developer Groups on Campus (powered by Hack2skill)",
+    date: "2025",
+    file: "assets/docs/Certificates/Hack2skill-Certificate.png"
+  },
+  {
+    title: "Data Analytics and Power BI Virtual Intern",
+    category: "Internship",
+    issuer: "AICTE and Vodafone Idea Foundation (_VOIS)",
+    date: "June 25, 2024 – July 18, 2024",
+    file: "assets/docs/Internships/VOIS_page-0001.jpg"
+  },
+  {
+    title: "Front End Development Intern",
+    category: "Internship",
+    issuer: "AICTE and Edunet Foundation (IBM SkillsBuild)",
+    date: "June 24, 2024 – July 31, 2024",
+    file: "assets/docs/Internships/AICTE EDUNET FED-1.png"
+  },
+  {
+    title: "Build Reports and Dashboards in Power BI",
+    category: "Certificate",
+    issuer: "Vodafone Idea Foundation (_VOIS)",
+    date: "July 11, 2024",
+    file: "assets/docs/Certificates/VOIS_Power-BI.png"
+  },
+  {
+    title: "Data Analytics and Visualization Job Simulation",
+    category: "Certificate",
+    issuer: "Forage – Accenture North America",
+    date: "April – June 2024 | Issued: June 4, 2024",
+    file: "assets/docs/Certificates/Accenture North America_completion_certificate-1.png"
+  },
+  {
+    title: "Web Development Intern",
+    category: "Internship",
+    issuer: "Coding Raja Technologies",
+    date: "May 1, 2024 – June 1, 2024",
+    file: "assets/docs/Internships/Coding_raja_internship.png"
+  },
+  {
+    title: "The Joy of Computing using Python",
+    category: "Certificate",
+    issuer: "IIT Madras / NPTEL (SWAYAM)",
+    date: "January – April 2024",
+    file: "assets/docs/Certificates/NPTEL_python.jpg"
+  },
+  {
+    title: "Microsoft Learn Student Ambassador – Azure Fundamentals Challenge",
+    category: "Certificate",
+    issuer: "Microsoft Learn Student Ambassador",
+    date: "March 6–17, 2024",
+    file: "assets/docs/Certificates/microsoft student ambassador.png"
+  },
+  {
+    title: "Microsoft Learn Student Ambassador – Embark on Your Azure Adventure: Unleashing the Fundamentals",
+    category: "Certificate",
+    issuer: "Microsoft Learn Student Ambassador",
+    date: "Microsoft Learn Challenge",
+    file: "assets/docs/Certificates/MLSA_Embark on Your Azure Adventure-1.png"
+  }
+];
+
+function initCertificateModal() {
+  const modal = document.getElementById('cert-modal');
+  if (!modal) return;
+
+  const overlay = modal.querySelector('.cert-modal-overlay');
+  const closeBtn = modal.querySelector('.cert-modal-close');
+  const titleEl = document.getElementById('cert-modal-title');
+  const subtitleEl = document.getElementById('cert-modal-subtitle');
+  const issuerEl = document.getElementById('cert-modal-issuer');
+  const openLink = document.getElementById('cert-modal-open-link');
+  const downloadLink = document.getElementById('cert-modal-download-link');
+  const contentEl = document.getElementById('cert-modal-content');
+  const loadingEl = document.getElementById('cert-modal-loading');
+
+  function closeModal() {
+    modal.classList.remove('active');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    setTimeout(() => {
+      if (!modal.classList.contains('active')) {
+        contentEl.innerHTML = '';
+      }
+    }, 300);
+  }
+
+  function showFallback(filename, title, issuer) {
+    if (loadingEl) loadingEl.style.display = 'none';
+    const cleanName = filename ? filename.split('/').pop() : 'Credential Document';
+    contentEl.innerHTML = `
+      <div class="cert-fallback-box">
+        <i class="fa-solid fa-file-circle-check cert-fallback-icon"></i>
+        <h4 class="cert-fallback-title">${title}</h4>
+        <p class="cert-fallback-desc">
+          Issued by <strong>${issuer}</strong>.<br>
+          This credential document will display directly once placed in the assets directory.
+        </p>
+        <div class="cert-fallback-path">${cleanName}</div>
+      </div>
+    `;
+  }
+
+  function tryFallback(fallbackUrl, title, issuer, originalUrl) {
+    if (!fallbackUrl) {
+      showFallback(originalUrl, title, issuer);
+      return;
+    }
+    const isPdf = fallbackUrl.toLowerCase().split('?')[0].endsWith('.pdf');
+    if (isPdf) {
+      if (loadingEl) loadingEl.style.display = 'none';
+      const iframe = document.createElement('iframe');
+      iframe.className = 'cert-modal-iframe';
+      iframe.title = title || 'Document Preview';
+      iframe.src = fallbackUrl;
+      contentEl.innerHTML = '';
+      contentEl.appendChild(iframe);
+      if (openLink) openLink.href = fallbackUrl;
+      if (downloadLink) {
+        downloadLink.href = fallbackUrl;
+        downloadLink.setAttribute('download', fallbackUrl.split('/').pop() || 'document.pdf');
+      }
+    } else {
+      const img = new Image();
+      img.className = 'cert-modal-img';
+      img.alt = title || 'Document Preview';
+      img.onload = () => {
+        if (loadingEl) loadingEl.style.display = 'none';
+        contentEl.innerHTML = '';
+        contentEl.appendChild(img);
+        if (openLink) openLink.href = fallbackUrl;
+        if (downloadLink) {
+          downloadLink.href = fallbackUrl;
+          downloadLink.setAttribute('download', fallbackUrl.split('/').pop() || 'document.png');
+        }
+      };
+      img.onerror = () => {
+        showFallback(originalUrl, title, issuer);
+      };
+      img.src = fallbackUrl;
+    }
+  }
+
+  function openModal(data) {
+    const { title, subtitle, issuer, src, fallbackSrc } = data;
+    if (titleEl) titleEl.textContent = title || 'Credential Document';
+    if (subtitleEl) subtitleEl.textContent = subtitle || '';
+    if (issuerEl) issuerEl.textContent = issuer || 'Verified Credential';
+
+    if (openLink) openLink.href = src || '#';
+    if (downloadLink) {
+      downloadLink.href = src || '#';
+      downloadLink.setAttribute('download', src ? src.split('/').pop() : 'document');
+    }
+
+    contentEl.innerHTML = '';
+    if (loadingEl) loadingEl.style.display = 'flex';
+
+    modal.classList.add('active');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+
+    if (!src) {
+      showFallback('', title, issuer);
+      return;
+    }
+
+    const isPdf = src.toLowerCase().split('?')[0].endsWith('.pdf');
+
+    if (isPdf) {
+      if (loadingEl) loadingEl.style.display = 'none';
+      const iframe = document.createElement('iframe');
+      iframe.className = 'cert-modal-iframe';
+      iframe.title = title || 'Document Preview';
+      iframe.src = src;
+      contentEl.innerHTML = '';
+      contentEl.appendChild(iframe);
+    } else {
+      const img = new Image();
+      img.className = 'cert-modal-img';
+      img.alt = title || 'Document Preview';
+
+      img.onload = () => {
+        if (loadingEl) loadingEl.style.display = 'none';
+        contentEl.innerHTML = '';
+        contentEl.appendChild(img);
+      };
+
+      img.onerror = () => {
+        tryFallback(fallbackSrc, title, issuer, src);
+      };
+
+      img.src = src;
+    }
+  }
+
+  // Bind click event to all clickable cards, thumbnails, and preview buttons
+  const previewTriggers = document.querySelectorAll('[data-cert-src]');
+  previewTriggers.forEach(el => {
+    el.addEventListener('click', (e) => {
+      // Do not open modal if user clicked a download button
+      if (e.target.closest('a[download]')) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      const src = el.getAttribute('data-cert-src');
+      const fallbackSrc = el.getAttribute('data-cert-fallback') || '';
+      const card = el.closest('.cert-card, .internship-card, .timeline-card') || el;
+      const title = el.getAttribute('data-cert-title') || card.getAttribute('data-cert-title') || card.querySelector('h3')?.textContent || 'Document';
+      const issuer = el.getAttribute('data-cert-issuer') || card.getAttribute('data-cert-issuer') || 'Issuer';
+      const subtitle = el.getAttribute('data-cert-date') || card.getAttribute('data-cert-date') || card.querySelector('.date, .cert-date, .internship-duration')?.textContent || '';
+
+      openModal({ title, subtitle, issuer, src, fallbackSrc });
+    });
+  });
+
+  // Event handlers for closing
+  if (overlay) overlay.addEventListener('click', closeModal);
+  if (closeBtn) closeBtn.addEventListener('click', closeModal);
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal.classList.contains('active')) {
+      closeModal();
+    }
+  });
+}
+
+// ==================================================
+// Mobile Read More / Read Less Toggle Logic
+// ==================================================
+function initReadMoreToggles() {
+  const readMoreButtons = document.querySelectorAll('.card-read-more-btn');
+  readMoreButtons.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const card = btn.closest('.timeline-card, .internship-card');
+      if (!card) return;
+
+      const projectDetails = card.querySelector('.project-details-grid');
+      const internshipList = card.querySelector('.internship-responsibilities');
+      const researchDesc = card.querySelector('.research-desc');
+      const summaryText = card.querySelector('.internship-responsibilities-summary');
+
+      const isExpanded = btn.getAttribute('aria-expanded') === 'true';
+
+      if (projectDetails) {
+        projectDetails.classList.toggle('collapsed', isExpanded);
+      }
+      if (internshipList) {
+        internshipList.classList.toggle('collapsed', isExpanded);
+        if (summaryText) {
+          summaryText.style.display = isExpanded ? '-webkit-box' : 'none';
+        }
+      }
+      if (researchDesc) {
+        researchDesc.classList.toggle('collapsed', isExpanded);
+      }
+
+      const newExpandedState = !isExpanded;
+      btn.setAttribute('aria-expanded', newExpandedState.toString());
+      btn.innerHTML = newExpandedState
+        ? '<span>Read Less</span> <i class="fa-solid fa-angle-up"></i>'
+        : '<span>Read More</span> <i class="fa-solid fa-angle-down"></i>';
+    });
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  initReadMoreToggles();
+});
