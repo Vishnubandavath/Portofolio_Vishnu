@@ -308,7 +308,7 @@ if (form) {
     }
 
     if (!formData.has("access_key")) {
-      // NOTE: Replace this access key with your Web3Forms access key registered with bandavathvishunu2020@gmail.com
+      // Web3Forms public access key for contact form submission
       formData.append("access_key", "950a5aaa-a76d-4914-a28e-8389f3b6f8ac");
     }
 
